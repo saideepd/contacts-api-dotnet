@@ -23,7 +23,7 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddContacts(AddContactRequest addContacts)
+        public async Task<IActionResult> AddContact(AddContactRequest addContacts)
         {
             var contact = new Contact
             {
@@ -35,6 +35,25 @@ namespace ContactsAPI.Controllers
             };
 
             await dbContext.Contacts.AddAsync(contact);
+            await dbContext.SaveChangesAsync();
+
+            return Ok(contact);
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> UpdateContact(Guid id, UpdateContactRequest updateContactRequest)
+        {
+            var contact = await dbContext.Contacts.FindAsync(id);
+
+            if (contact is null)
+                return NoContent();
+
+            contact.FullName = updateContactRequest.FullName;
+            contact.Email = updateContactRequest.Email;
+            contact.Address = updateContactRequest.Address;
+            contact.Phone = updateContactRequest.Phone;
+
             await dbContext.SaveChangesAsync();
 
             return Ok(contact);
